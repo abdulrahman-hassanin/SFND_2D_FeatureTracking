@@ -103,6 +103,12 @@ int main(int argc, const char *argv[])
         if (bFocusOnVehicle)
         {
             // ...
+            cv::Rect vehicleRect(535, 180, 180, 150);
+            for(int i=0; i<= keyPoints.size(); i++)
+            {
+                if(!vehicleRect.contains(cv::Point(keyPoints[i].pt.x, keyPoints[i].pt.y)))
+                    keyPoints.erase(keypoints.begin() + i);
+            }
         }
 
         //// EOF STUDENT ASSIGNMENT

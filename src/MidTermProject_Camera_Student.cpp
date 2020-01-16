@@ -104,10 +104,11 @@ int main(int argc, const char *argv[])
         {
             // ...
             cv::Rect vehicleRect(535, 180, 180, 150);
-            for(int i=0; i<= keyPoints.size(); i++)
+            //for(int i=0; i<= keypoints.size(); i++)
+            for(int i = keypoints.size()-1; i>=0; i++)
             {
-                if(!vehicleRect.contains(cv::Point(keyPoints[i].pt.x, keyPoints[i].pt.y)))
-                    keyPoints.erase(keypoints.begin() + i);
+                if(!vehicleRect.contains(cv::Point(keypoints[i].pt.x, keypoints[i].pt.y)))
+                    keypoints.erase(keypoints.begin() + i);
             }
         }
 

@@ -63,19 +63,19 @@ void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descr
         extractor = cv::BRISK::create(threshold, octaves, patternScale);
     }
     // BRIEF, ORB, FREAK, AKAZE, SIFT
-    if else(descriptorType.compare("BRIEF") == 0){        
+    else if(descriptorType.compare("BRIEF") == 0){        
         extractor = cv::xfeatures2d::BriefDescriptorExtractor::create();		
     }
-    if else(descriptorType.compare("ORB") == 0){
+    else if(descriptorType.compare("ORB") == 0){
         extractor = cv::ORB::create();
     }    
-    if else(descriptorType.compare("FREAK") == 0){
+    else if(descriptorType.compare("FREAK") == 0){
         extractor = cv::xfeatures2d::FREAK::create();	
     }
-    if else(descriptorType.compare("AKAZE") == 0){
+    else if(descriptorType.compare("AKAZE") == 0){
         extractor = cv::AKAZE::create();
     }
-    if else(descriptorType.compare("SIFT") == 0){
+    else if(descriptorType.compare("SIFT") == 0){
         extractor = cv::xfeatures2d::SIFT::create();
     }
     

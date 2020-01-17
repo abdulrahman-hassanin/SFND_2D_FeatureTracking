@@ -19,6 +19,13 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     else if (matcherType.compare("MAT_FLANN") == 0)
     {
         // ...
+        if (descSource.type() != CV_32F) {
+        	descSource.convertTo(descSource, CV_32F);
+        }
+        if (descRef.type() != CV_32F) {
+        	descRef.convertTo(descRef, CV_32F);
+        }
+        matcher = cv::DescriptorMatcher::create(cv::DescriptorMatcher::FLANNBASED);
     }
 
     // perform matching task
@@ -29,7 +36,14 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     }
     else if (selectorType.compare("SEL_KNN") == 0)
     { // k nearest neighbors (k=2)
+        matcher->knnMatch(descSource, descRef, matches, 2);
 
+    	double threshold = 0.8;
+    	for (auto i = knnMatches.begin(); i != knnMatches.end(); i++) {
+    		if ((*i)[0].distance < threshold * (*i)[1].distance) {
+    			matches.push_back((*i)[0]);
+    		}
+    	}
         // ...
     }
 }
@@ -48,11 +62,23 @@ void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descr
 
         extractor = cv::BRISK::create(threshold, octaves, patternScale);
     }
-    else
-    {
-
-        //...
+    // BRIEF, ORB, FREAK, AKAZE, SIFT
+    if else(descriptorType.compare("BRIEF") == 0){        
+        extractor = cv::xfeatures2d::BriefDescriptorExtractor::create();		
     }
+    if else(descriptorType.compare("ORB") == 0){
+        extractor = cv::ORB::create();
+    }    
+    if else(descriptorType.compare("FREAK") == 0){
+        extractor = cv::xfeatures2d::FREAK::create();	
+    }
+    if else(descriptorType.compare("AKAZE") == 0){
+        extractor = cv::AKAZE::create();
+    }
+    if else(descriptorType.compare("SIFT") == 0){
+        extractor = cv::xfeatures2d::SIFT::create();
+    }
+    
 
     // perform feature description
     double t = (double)cv::getTickCount();

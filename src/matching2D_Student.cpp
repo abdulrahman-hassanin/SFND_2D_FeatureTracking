@@ -13,37 +13,57 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
 
     if (matcherType.compare("MAT_BF") == 0)
     {
-        int normType = cv::NORM_HAMMING;
-        matcher = cv::BFMatcher::create(normType, crossCheck);
+        int normType;
+      	if(descriptorCategory.compare("DES_HOG") == 0){
+          	normType = cv::NORM_L2;
+        }
+        // with all other binary descriptors
+        else if (descriptorCategory.compare("DES_BINARY") == 0)
+        {
+            normType = cv::NORM_HAMMING;
+        }   
+        matcher = cv::BFMatcher::create(normType, crossCheck);        
     }
     else if (matcherType.compare("MAT_FLANN") == 0)
     {
         // ...
-        if (descSource.type() != CV_32F) {
-        	descSource.convertTo(descSource, CV_32F);
+        // if (descSource.type() != CV_32F) {
+        // 	descSource.convertTo(descSource, CV_32F);
+        // }
+        // if (descRef.type() != CV_32F) {
+        // 	descRef.convertTo(descRef, CV_32F);
+        // }
+        // matcher = cv::DescriptorMatcher::create(cv::DescriptorMatcher::FLANNBASED);
+            if (descriptorCategory.compare("DES_HOG") == 0)
+        {
+            matcher = cv::FlannBasedMatcher::create();
         }
-        if (descRef.type() != CV_32F) {
-        	descRef.convertTo(descRef, CV_32F);
-        }
-        matcher = cv::DescriptorMatcher::create(cv::DescriptorMatcher::FLANNBASED);
+
+        // with all other binary descriptorTypes
+        else if (descriptorCategory.compare("DES_BINARY") == 0)
+        {
+            const cv::Ptr<cv::flann::IndexParams>& indexParams = cv::makePtr<cv::flann::LshIndexParams>(12, 20, 2);
+            matcher = cv::makePtr<cv::FlannBasedMatcher>(indexParams);
+        }     
     }
 
     // perform matching task
     if (selectorType.compare("SEL_NN") == 0)
     { // nearest neighbor (best match)
+      	int k=2;
+        assert(k==2);  
+        std::vector<std::vector<cv::DMatch>> knn_matches;
+        matcher->knnMatch(descSource, descRef, knn_matches, k);
 
-        matcher->match(descSource, descRef, matches); // Finds the best match for each descriptor in desc1
-    }
-    else if (selectorType.compare("SEL_KNN") == 0)
-    { // k nearest neighbors (k=2)
-        matcher->knnMatch(descSource, descRef, matches, 2);
+        double minDescDistRatio = 0.8;
+        for (auto it : knn_matches) {
+            // The returned knn_matches vector contains some nested vectors with size < 2 !?
+            if ( 2 == it.size() && (it[0].distance < minDescDistRatio * it[1].distance) ) {
+                matches.push_back(it[0]);
+            }
+        }
 
-    	double threshold = 0.8;
-    	for (auto i = knnMatches.begin(); i != knnMatches.end(); i++) {
-    		if ((*i)[0].distance < threshold * (*i)[1].distance) {
-    			matches.push_back((*i)[0]);
-    		}
-    	}
+
         // ...
     }
 }
@@ -81,9 +101,9 @@ void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descr
     
 
     // perform feature description
-    double t = (double)cv::getTickCount();
+    // double t = (double)cv::getTickCount();
     extractor->compute(img, keypoints, descriptors);
-    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    // t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
     // cout << descriptorType << " descriptor extraction in " << 1000 * t / 1.0 << " ms" << endl;
 }
 
@@ -100,7 +120,7 @@ void detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool b
     double k = 0.04;
 
     // Apply corner detection
-    double t = (double)cv::getTickCount();
+    // double t = (double)cv::getTickCount();
     vector<cv::Point2f> corners;
     cv::goodFeaturesToTrack(img, corners, maxCorners, qualityLevel, minDistance, cv::Mat(), blockSize, false, k);
 
@@ -113,7 +133,7 @@ void detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool b
         newKeyPoint.size = blockSize;
         keypoints.push_back(newKeyPoint);
     }
-    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    // t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
     // cout << "Shi-Tomasi detection with n=" << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
 
     // visualize results
@@ -141,7 +161,7 @@ void detKeypointsHarris(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool
 
     // Detect Harris corners and normalize output
     cv::Mat dst, dst_norm, dst_norm_scaled;
-    double t = (double)cv::getTickCount();
+    // double t = (double)cv::getTickCount();
     dst = cv::Mat::zeros(img.size(), CV_32FC1);
     cv::cornerHarris(img, dst, blockSize, apertureSize, k, cv::BORDER_DEFAULT);
     cv::normalize(dst, dst_norm, 0, 255, cv::NORM_MINMAX, CV_32FC1, cv::Mat());
@@ -184,7 +204,7 @@ void detKeypointsHarris(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool
         }
     }
 
-    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    // t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
     // cout << "HARRIS detection with n=" << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
 
     // visualize results
@@ -219,9 +239,9 @@ void detKeypointsModern(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, std:
         detector = cv::xfeatures2d::SIFT::create();
     }
 
-    double t = (double)cv::getTickCount();
+    // double t = (double)cv::getTickCount();
 	detector->detect(img, keypoints);
-	t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+	// t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
 	// cout << detectorType << " detector with n = " << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
 
 	if (bVis) {

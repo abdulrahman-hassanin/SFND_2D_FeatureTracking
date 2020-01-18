@@ -136,6 +136,9 @@ void detKeypointsHarris(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool
     int minResponse = 100; // minimum value for a corner in the 8bit scaled response matrix
     double k = 0.04;       // Harris parameter (see equation for details)
 
+        // Non-maximum suppression (NMS) settings
+    double maxOverlap = 0.0;  // Maximum overlap between two features in %
+
     // Detect Harris corners and normalize output
     cv::Mat dst, dst_norm, dst_norm_scaled;
     double t = (double)cv::getTickCount();
@@ -180,7 +183,7 @@ void detKeypointsHarris(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool
             }
         }
     }
-    
+
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
     // cout << "HARRIS detection with n=" << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
 

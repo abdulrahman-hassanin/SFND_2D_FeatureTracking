@@ -32,3 +32,34 @@ See the classroom instruction and code comments for more details on each of thes
 2. Make a build directory in the top level directory: `mkdir build && cd build`
 3. Compile: `cmake .. && make`
 4. Run it: `./2D_feature_tracking`.
+
+## Task MP0, Writeup
+
+### MP.1 Data Buffer Optimization
+
+Implement a vector for dataBuffer objects whose size does not exceed 2 to make a memory optimization. make a dataBuffer using `deque` by pushing in new elements on one end and removing elements on the other end.
+
+### MP.2 Keypoint Detection
+
+Implement differrent Features detectors HARRIS, FAST, BRISK, ORB, AKAZE, and SIFT using OpenCV and make them selectable by setting a string accordingly.
+
+### MP.3 Keypoint Removal
+
+Remove all keypoints outside of a pre-defined rectangle and only use the keypoints within the rectangle for further processing.
+`if(!vehicleRect.contains(kaypoint.pt)))`
+`    remove keypoint`
+
+### MP.4 Keypoint Descriptors
+
+Implement descriptors BRIEF, ORB, FREAK, AKAZE and SIFT and make them selectable by setting a string accordingly.
+
+### MP.5 Descriptor Matching
+
+Implement FLANN matching as well as k-nearest neighbor selection.The function `matchDescriptors` in `matching2D_Student.cpp` contains the implementation for both methofs using the respective strings in the main function.
+
+### MP.6 Descriptor Distance Ratio
+
+Use the K-Nearest-Neighbor matching to implement the descriptor distance ratio test, which looks at the ratio of best vs. second-best match to decide whether to keep an associated pair of keypoints.
+This distance ratio filter compares the distance (SSD) between two candidate matched keypoint descriptors. A threshold of `0.8` is applied and the stronger candidate (minimum distance) is selected as the correct match
+
+

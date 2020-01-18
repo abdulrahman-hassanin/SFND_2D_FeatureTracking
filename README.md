@@ -46,7 +46,8 @@ Implement differrent Features detectors HARRIS, FAST, BRISK, ORB, AKAZE, and SIF
 ### MP.3 Keypoint Removal
 
 Remove all keypoints outside of a pre-defined rectangle and only use the keypoints within the rectangle for further processing.
-`if(!vehicleRect.contains(kaypoint.pt)))`
+
+`if(!vehicleRect.contains(kaypoint.pt))`
 `    remove keypoint`
 
 ### MP.4 Keypoint Descriptors
@@ -62,4 +63,18 @@ Implement FLANN matching as well as k-nearest neighbor selection.The function `m
 Use the K-Nearest-Neighbor matching to implement the descriptor distance ratio test, which looks at the ratio of best vs. second-best match to decide whether to keep an associated pair of keypoints.
 This distance ratio filter compares the distance (SSD) between two candidate matched keypoint descriptors. A threshold of `0.8` is applied and the stronger candidate (minimum distance) is selected as the correct match
 
+### MP.7 Performance Evaluation 1
 
+the number of keypoints on the preceding vehicle for all 10 images with all detectors and take note of the distribution of their neighborhood size. you can find it at `Task MP7.csv`
+
+### MP.8 Performance Evaluation 2
+
+ the number of matched keypoints for all 10 images using all possible combinations of detectors and descriptors. BF approach is used with the descriptor distance ratio set to 0.8. you can find it at `Taask MP8&MP9.csv`
+
+### MP.9 Performance Evaluation 3
+
+For overall performance relevant to this project, the top three combinations were:
+
+FAST detectors and ORB descriptors
+FAST detectors and BRIEF descriptors
+FAST detectors and SIFT descriptors

@@ -144,15 +144,43 @@ void detKeypointsHarris(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool
     cv::normalize(dst, dst_norm, 0, 255, cv::NORM_MINMAX, CV_32FC1, cv::Mat());
     cv::convertScaleAbs(dst_norm, dst_norm_scaled);
 
-    for(int r=0; r< dst_norm.rows; r++){
-        for(int c=0; c<dst_norm.cols; c++){
-            cv::KeyPoints newKeyPoint;
-            newKeyPoint.pt = cv::pointf(r, c)
+    // Apply non-maximum suppression (NMS)
+    for (size_t j = 0; j < dst_norm.rows; j++) {
+        for (size_t i = 0; i < dst_norm.cols; i++) {
+            int response = (int)dst_norm.at<float>(j, i);
+
+            // Apply the minimum threshold for Harris cornerness response
+            if (response < minResponse) continue;
+
+            // Otherwise create a tentative new keypoint
+            cv::KeyPoint newKeyPoint;
+            newKeyPoint.pt = cv::Point2f(i, j);
             newKeyPoint.size = 2 * apertureSize;
-            newKeyPoint.response = dst_norm.at<float>(r, c);
-            keypoints.push_back(newKeyPoint);
+            newKeyPoint.response = response;
+
+            // Perform non-maximum suppression (NMS) in local neighbourhood around the new keypoint
+            bool bOverlap = false;
+            // Loop over all existing keypoints
+            for (auto it = keypoints.begin(); it != keypoints.end(); ++it) {
+                double kptOverlap = cv::KeyPoint::overlap(newKeyPoint, *it);
+                // Test if overlap exceeds the maximum percentage allowable
+                if (kptOverlap > maxOverlap) {
+                    bOverlap = true;
+                    // If overlapping, test if new response is the local maximum
+                    if (newKeyPoint.response > (*it).response) {
+                        *it = newKeyPoint;  // Replace the old keypoint
+                        break;  // Exit for loop
+                    }
+                }
+            }
+
+            // If above response threshold and not overlapping any other keypoint
+            if (!bOverlap) {
+                keypoints.push_back(newKeyPoint);  // Add to keypoints list
+            }
         }
     }
+    
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
     // cout << "HARRIS detection with n=" << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
 
